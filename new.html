@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IShop - Professional E-commerce Platform</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-in { animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .star-rating { color: #ffa500; }
+        .product-card:hover { transform: translateY(-2px); }
+        .cart-badge { animation: bounce 0.5s; }
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        /* Beautiful Background Theme */
+        .main-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .main-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .products-bg {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            position: relative;
+        }
+        
+        .products-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        
+        .auth-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+        
+        .auth-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        
+        .cart-bg {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            position: relative;
+        }
+        
+        .cart-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='m0 40l40-40h-40v40zm40 0v-40h-40l40 40z'/%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .floating-shapes::before,
+        .floating-shapes::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-shapes::before {
+            width: 200px;
+            height: 200px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-shapes::after {
+            width: 150px;
+            height: 150px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 3s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        /* Dark Theme Styles */
+        .dark {
+            color-scheme: dark;
+        }
+        
+        .dark .main-bg {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .dark .products-bg {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        }
+        
+        .dark .auth-bg {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .dark .cart-bg {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+        }
+        
+        .dark .glass-effect {
+            background: rgba(45, 55, 72, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f7fafc;
+        }
+        
+        .dark .text-gray-900 {
+            color: #f7fafc !important;
+        }
+        
+        .dark .text-gray-700 {
+            color: #e2e8f0 !important;
+        }
+        
+        .dark .text-gray-600 {
+            color: #cbd5e0 !important;
+        }
+        
+        .dark .text-gray-500 {
+            color: #a0aec0 !important;
+        }
+        
+        .dark .bg-white {
+            background-color: #2d3748 !important;
+            color: #f7fafc !important;
+        }
+        
+        .dark .border-gray-300 {
+            border-color: #4a5568 !important;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: #4a5568 !important;
+        }
+        
+        .dark .bg-gray-200 {
+            background-color: #4a5568 !important;
+        }
+        
+        .dark .hover\\:bg-gray-300:hover {
+            background-color: #718096 !important;
+        }
+        
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #e2e8f0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #cbd5e0;
+        }
+        
+        .dark .theme-toggle {
+            background: #4a5568;
+            border-color: #718096;
+        }
+        
+        .theme-toggle::before {
+            content: '☀️';
+            position: absolute;
+            top: 50%;
+            left: 4px;
+            transform: translateY(-50%);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .dark .theme-toggle::before {
+            content: '🌙';
+            left: 32px;
+        }
+        
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .dark .theme-toggle::after {
+            transform: translateX(28px);
+            background: #2d3748;
+        }
+        
+        /* Smooth transitions for theme changes */
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useContext, createContext, useCallback } = React;
+
+        // Mock Backend API Service
+        class APIService {
+            constructor() {
+                this.baseURL = 'https://api.ishop.com'; // Mock API
+                this.token = localStorage.getItem('token');
+            }
+
+            // Authentication APIs
+            async login(credentials) {
+                // Mock JWT authentication
+                await this.delay(1000);
+                if (credentials.email && credentials.password) {
+                    const mockToken = this.generateMockJWT(credentials.email);
+                    const userData = {
+                        id: Date.now(),
+                        email: credentials.email,
+                        name: credentials.email.split('@')[0],
+                        avatar: `https://ui-avatars.com/api/?name=${credentials.email}&background=3b82f6&color=fff`
+                    };
+                    localStorage.setItem('token', mockToken);
+                    localStorage.setItem('user', JSON.stringify(userData));
+                    this.token = mockToken;
+                    return { token: mockToken, user: userData };
+                }
+                throw new Error('Invalid credentials');
+            }
+
+            async signup(userData) {
+                await this.delay(1000);
+                if (userData.email && userData.password && userData.name) {
+                    const mockToken = this.generateMockJWT(userData.email);
+                    const user = {
+                        id: Date.now(),
+                        email: userData.email,
+                        name: userData.name,
+                        avatar: `https://ui-avatars.com/api/?name=${userData.name}&background=3b82f6&color=fff`
+                    };
+                    localStorage.setItem('token', mockToken);
+                    localStorage.setItem('user', JSON.stringify(user));
+                    this.token = mockToken;
+                    return { token: mockToken, user };
+                }
+                throw new Error('Invalid user data');
+            }
+
+            async logout() {
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                this.token = null;
+            }
+
+            // Products APIs
+            async getProducts(filters = {}) {
+                await this.delay(800);
+                let products = this.getMockProducts();
+                
+                // Apply filters
+                if (filters.category && filters.category !== 'all') {
+                    products = products.filter(p => p.category === filters.category);
+                }
+                if (filters.minPrice) {
+                    products = products.filter(p => p.price >= filters.minPrice);
+                }
+                if (filters.maxPrice) {
+                    products = products.filter(p => p.price <= filters.maxPrice);
+                }
+                if (filters.search) {
+                    products = products.filter(p => 
+                        p.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+                        p.description.toLowerCase().includes(filters.search.toLowerCase())
+                    );
+                }
+                if (filters.rating) {
+                    products = products.filter(p => p.rating >= filters.rating);
+                }
+
+                return products;
+            }
+
+            // Cart APIs
+            async getCart() {
+                if (!this.token) throw new Error('Not authenticated');
+                await this.delay(500);
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                return cart;
+            }
+
+            async addToCart(productId, quantity = 1) {
+                if (!this.token) throw new Error('Not authenticated');
+                await this.delay(300);
+                
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                const products = this.getMockProducts();
+                const product = products.find(p => p.id === productId);
+                
+                if (!product) throw new Error('Product not found');
+                
+                const existingItem = cart.find(item => item.productId === productId);
+                if (existingItem) {
+                    existingItem.quantity += quantity;
+                } else {
+                    cart.push({
+                        id: Date.now(),
+                        productId,
+                        product,
+                        quantity
+                    });
+                }
+                
+                localStorage.setItem('cart', JSON.stringify(cart));
+                return cart;
+            }
+
+            async updateCartItem(itemId, quantity) {
+                if (!this.token) throw new Error('Not authenticated');
+                await this.delay(300);
+                
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                const item = cart.find(item => item.id === itemId);
+                
+                if (item) {
+                    if (quantity <= 0) {
+                        const updatedCart = cart.filter(item => item.id !== itemId);
+                        localStorage.setItem('cart', JSON.stringify(updatedCart));
+                        return updatedCart;
+                    } else {
+                        item.quantity = quantity;
+                        localStorage.setItem('cart', JSON.stringify(cart));
+                        return cart;
+                    }
+                }
+                
+                throw new Error('Cart item not found');
+            }
+
+            async removeFromCart(itemId) {
+                if (!this.token) throw new Error('Not authenticated');
+                await this.delay(300);
+                
+                const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+                const updatedCart = cart.filter(item => item.id !== itemId);
+                localStorage.setItem('cart', JSON.stringify(updatedCart));
+                return updatedCart;
+            }
+
+            // Helper methods
+            generateMockJWT(email) {
+                const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+                const payload = btoa(JSON.stringify({ 
+                    email, 
+                    exp: Date.now() + 86400000,
+                    iat: Date.now()
+                }));
+                return `${header}.${payload}.mock_signature`;
+            }
+
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            getMockProducts() {
+                return [
+                    {
+                        id: 1,
+                        name: "Premium Wireless Headphones",
+                        description: "High-quality noise-canceling wireless headphones with 30-hour battery life",
+                        price: 299.99,
+                        originalPrice: 399.99,
+                        category: "electronics",
+                        image: "🎧",
+                        rating: 4.5,
+                        reviews: 1247,
+                        inStock: true,
+                        brand: "AudioTech"
+                    },
+                    {
+                        id: 2,
+                        name: "Smart Fitness Watch",
+                        description: "Advanced fitness tracking with heart rate monitor and GPS",
+                        price: 199.99,
+                        originalPrice: 249.99,
+                        category: "electronics",
+                        image: "⌚",
+                        rating: 4.3,
+                        reviews: 892,
+                        inStock: true,
+                        brand: "FitTech"
+                    },
+                    {
+                        id: 3,
+                        name: "Organic Cotton T-Shirt",
+                        description: "Comfortable 100% organic cotton t-shirt in various colors",
+                        price: 29.99,
+                        originalPrice: 39.99,
+                        category: "clothing",
+                        image: "👕",
+                        rating: 4.2,
+                        reviews: 567,
+                        inStock: true,
+                        brand: "EcoWear"
+                    },
+                    {
+                        id: 4,
+                        name: "Premium Denim Jeans",
+                        description: "Classic fit premium denim jeans with stretch comfort",
+                        price: 89.99,
+                        originalPrice: 119.99,
+                        category: "clothing",
+                        image: "👖",
+                        rating: 4.4,
+                        reviews: 423,
+                        inStock: true,
+                        brand: "DenimCo"
+                    },
+                    {
+                        id: 5,
+                        name: "JavaScript: The Complete Guide",
+                        description: "Comprehensive guide to modern JavaScript development",
+                        price: 49.99,
+                        originalPrice: 59.99,
+                        category: "books",
+                        image: "📚",
+                        rating: 4.7,
+                        reviews: 234,
+                        inStock: true,
+                        brand: "TechBooks"
+                    },
+                    {
+                        id: 6,
+                        name: "Cooking Masterclass",
+                        description: "Professional cooking techniques and recipes from world-class chefs",
+                        price: 39.99,
+                        originalPrice: 49.99,
+                        category: "books",
+                        image: "📖",
+                        rating: 4.6,
+                        reviews: 189,
+                        inStock: true,
+                        brand: "CulinaryPress"
+                    },
+                    {
+                        id: 7,
+                        name: "Modern Ceramic Vase",
+                        description: "Elegant handcrafted ceramic vase perfect for home decoration",
+                        price: 79.99,
+                        originalPrice: 99.99,
+                        category: "home",
+                        image: "🏺",
+                        rating: 4.1,
+                        reviews: 156,
+                        inStock: true,
+                        brand: "HomeArt"
+                    },
+                    {
+                        id: 8,
+                        name: "LED Desk Lamp",
+                        description: "Adjustable LED desk lamp with USB charging port and touch controls",
+                        price: 59.99,
+                        originalPrice: 79.99,
+                        category: "home",
+                        image: "💡",
+                        rating: 4.3,
+                        reviews: 334,
+                        inStock: true,
+                        brand: "LightTech"
+                    }
+                ];
+            }
+        }
+
+        // Context for global state management
+        const AppContext = createContext();
+
+        // Toast notification component
+        const Toast = ({ message, type, onClose }) => {
+            useEffect(() => {
+                const timer = setTimeout(onClose, 3000);
+                return () => clearTimeout(timer);
+            }, [onClose]);
+
+            return (
+                <div className={`fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 slide-in ${
+                    type === 'error' ? 'bg-red-500' : 'bg-green-500'
+                } text-white`}>
+                    {message}
+                </div>
+            );
+        };
+
+        // Loading component
+        const Loading = ({ size = 'md' }) => {
+            const sizeClasses = {
+                sm: 'w-4 h-4',
+                md: 'w-8 h-8',
+                lg: 'w-12 h-12'
+            };
+
+            return (
+                <div className={`loading-spinner ${sizeClasses[size]} mx-auto`}></div>
+            );
+        };
+
+        // Header component
+        const Header = () => {
+            const { user, cart, logout, searchTerm, setSearchTerm, currentPage, setCurrentPage, darkMode, toggleTheme } = useContext(AppContext);
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+            const cartItemsCount = cart.reduce((total, item) => total + item.quantity, 0);
+
+            return (
+                <header className="bg-blue-600 text-white shadow-lg sticky top-0 z-40">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-16">
+                            {/* Logo */}
+                            <div className="flex items-center">
+                                <h1 
+                                    className="text-2xl font-bold cursor-pointer"
+                                    onClick={() => setCurrentPage('products')}
+                                >
+                                    IShop
+                                </h1>
+                            </div>
+
+                            {/* Search Bar */}
+                            <div className="flex-1 max-w-2xl mx-8">
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder="Search products..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full px-4 py-2 pl-10 text-gray-900 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300"
+                                    />
+                                    <i data-lucide="search" className="absolute left-3 top-2.5 w-5 h-5 text-gray-400"></i>
+                                </div>
+                            </div>
+
+                            {/* Navigation */}
+                            <div className="flex items-center space-x-4">
+                                {/* Theme Toggle */}
+                                <div 
+                                    className="theme-toggle"
+                                    onClick={toggleTheme}
+                                    title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                                ></div>
+                                
+                                {user ? (
+                                    <>
+                                        <div className="flex items-center space-x-2">
+                                            <img 
+                                                src={user.avatar} 
+                                                alt={user.name}
+                                                className="w-8 h-8 rounded-full"
+                                            />
+                                            <span className="hidden md:block">Hi, {user.name}</span>
+                                        </div>
+                                        <button
+                                            onClick={() => setCurrentPage('cart')}
+                                            className="relative p-2 hover:bg-blue-700 rounded-lg transition-colors"
+                                        >
+                                            <i data-lucide="shopping-cart" className="w-6 h-6"></i>
+                                            {cartItemsCount > 0 && (
+                                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center cart-badge">
+                                                    {cartItemsCount}
+                                                </span>
+                                            )}
+                                        </button>
+                                        <button
+                                            onClick={logout}
+                                            className="px-4 py-2 bg-red-500 hover:bg-red-600 rounded-lg transition-colors"
+                                        >
+                                            Logout
+                                        </button>
+                                    </>
+                                ) : (
+                                    <div className="space-x-2">
+                                        <button
+                                            onClick={() => setCurrentPage('login')}
+                                            className="px-4 py-2 bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors"
+                                        >
+                                            Login
+                                        </button>
+                                        <button
+                                            onClick={() => setCurrentPage('signup')}
+                                            className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg transition-colors"
+                                        >
+                                            Sign Up
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            );
+        };
+
+        // Login component
+        const Login = () => {
+            const { login, setCurrentPage } = useContext(AppContext);
+            const [formData, setFormData] = useState({ email: '', password: '' });
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+
+                try {
+                    await login(formData);
+                    setCurrentPage('products');
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen auth-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                    <div className="floating-shapes"></div>
+                    <div className="max-w-md w-full space-y-8 relative z-10">
+                        <div>
+                            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                                Sign in to your account
+                            </h2>
+                        </div>
+                        <form className="mt-8 space-y-6 glass-effect p-8 rounded-xl shadow-2xl" onSubmit={handleSubmit}>
+                            {error && (
+                                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                                    {error}
+                                </div>
+                            )}
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                                    <input
+                                        type="email"
+                                        required
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Enter your email"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Password</label>
+                                    <input
+                                        type="password"
+                                        required
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Enter your password"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+                                >
+                                    {loading ? <Loading size="sm" /> : 'Sign in'}
+                                </button>
+                            </div>
+
+                            <div className="text-center">
+                                <span className="text-sm text-gray-600">
+                                    Don't have an account?{' '}
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentPage('signup')}
+                                        className="font-medium text-blue-600 hover:text-blue-500"
+                                    >
+                                        Sign up
+                                    </button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        // Signup component
+        const Signup = () => {
+            const { signup, setCurrentPage } = useContext(AppContext);
+            const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
+
+                try {
+                    await signup(formData);
+                    setCurrentPage('products');
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="min-h-screen auth-bg flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+                    <div className="floating-shapes"></div>
+                    <div className="max-w-md w-full space-y-8 relative z-10">
+                        <div>
+                            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                                Create your account
+                            </h2>
+                        </div>
+                        <form className="mt-8 space-y-6 glass-effect p-8 rounded-xl shadow-2xl" onSubmit={handleSubmit}>
+                            {error && (
+                                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                                    {error}
+                                </div>
+                            )}
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={formData.name}
+                                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Enter your full name"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Email</label>
+                                    <input
+                                        type="email"
+                                        required
+                                        value={formData.email}
+                                        onChange={(e) => setFormData({...formData, email: e.target.value})}
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Enter your email"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Password</label>
+                                    <input
+                                        type="password"
+                                        required
+                                        value={formData.password}
+                                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        placeholder="Enter your password"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                                >
+                                    {loading ? <Loading size="sm" /> : 'Sign up'}
+                                </button>
+                            </div>
+
+                            <div className="text-center">
+                                <span className="text-sm text-gray-600">
+                                    Already have an account?{' '}
+                                    <button
+                                        type="button"
+                                        onClick={() => setCurrentPage('login')}
+                                        className="font-medium text-blue-600 hover:text-blue-500"
+                                    >
+                                        Sign in
+                                    </button>
+                                </span>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        };
+
+        // Product card component
+        const ProductCard = ({ product }) => {
+            const { addToCart, showToast } = useContext(AppContext);
+            const [loading, setLoading] = useState(false);
+
+            const handleAddToCart = async () => {
+                setLoading(true);
+                try {
+                    await addToCart(product.id);
+                    showToast(`${product.name} added to cart!`, 'success');
+                } catch (err) {
+                    showToast(err.message, 'error');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const discount = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+            const stars = '★'.repeat(Math.floor(product.rating)) + '☆'.repeat(5 - Math.floor(product.rating));
+
+            return (
+                <div className="glass-effect rounded-lg shadow-md hover:shadow-lg transition-all duration-300 product-card fade-in">
+                    <div className="p-6">
+                        <div className="text-6xl text-center mb-4">{product.image}</div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                            {product.name}
+                        </h3>
+                        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                            {product.description}
+                        </p>
+                        
+                        <div className="flex items-center mb-2">
+                            <span className="star-rating text-sm mr-2">{stars}</span>
+                            <span className="text-sm text-gray-500">({product.reviews})</span>
+                        </div>
+
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <span className="text-2xl font-bold text-gray-900">${product.price}</span>
+                                {product.originalPrice > product.price && (
+                                    <>
+                                        <span className="text-sm text-gray-500 line-through ml-2">
+                                            ${product.originalPrice}
+                                        </span>
+                                        <span className="text-sm text-green-600 ml-2">
+                                            -{discount}%
+                                        </span>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-500">{product.brand}</span>
+                            <span className={`text-sm px-2 py-1 rounded ${
+                                product.inStock ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }`}>
+                                {product.inStock ? 'In Stock' : 'Out of Stock'}
+                            </span>
+                        </div>
+
+                        <button
+                            onClick={handleAddToCart}
+                            disabled={loading || !product.inStock}
+                            className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        >
+                            {loading ? <Loading size="sm" /> : 'Add to Cart'}
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        // Products listing component
+        const ProductsListing = () => {
+            const { products, loading, searchTerm, filters, setFilters } = useContext(AppContext);
+            const [showFilters, setShowFilters] = useState(false);
+
+            const categories = ['all', 'electronics', 'clothing', 'books', 'home'];
+
+            return (
+                <div className="min-h-screen products-bg">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+                        {/* Filters */}
+                        <div className="mb-8">
+                            <div className="flex flex-wrap items-center justify-between mb-4">
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    {searchTerm ? `Search results for "${searchTerm}"` : 'All Products'}
+                                </h2>
+                                <button
+                                    onClick={() => setShowFilters(!showFilters)}
+                                    className="lg:hidden bg-blue-600 text-white px-4 py-2 rounded-lg"
+                                >
+                                    Filters
+                                </button>
+                            </div>
+
+                            <div className={`${showFilters ? 'block' : 'hidden'} lg:block`}>
+                                <div className="glass-effect p-4 rounded-lg shadow-sm">
+                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        {/* Category Filter */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Category
+                                            </label>
+                                            <select
+                                                value={filters.category}
+                                                onChange={(e) => setFilters({...filters, category: e.target.value})}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                            >
+                                                {categories.map(cat => (
+                                                    <option key={cat} value={cat}>
+                                                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+
+                                        {/* Price Range */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Min Price
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={filters.minPrice}
+                                                onChange={(e) => setFilters({...filters, minPrice: e.target.value})}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                                placeholder="$0"
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Max Price
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={filters.maxPrice}
+                                                onChange={(e) => setFilters({...filters, maxPrice: e.target.value})}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                                placeholder="$1000"
+                                            />
+                                        </div>
+
+                                        {/* Rating Filter */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                                Min Rating
+                                            </label>
+                                            <select
+                                                value={filters.rating}
+                                                onChange={(e) => setFilters({...filters, rating: e.target.value})}
+                                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                            >
+                                                <option value="">Any Rating</option>
+                                                <option value="4">4+ Stars</option>
+                                                <option value="3">3+ Stars</option>
+                                                <option value="2">2+ Stars</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Products Grid */}
+                        {loading ? (
+                            <div className="flex justify-center items-center h-64">
+                                <Loading size="lg" />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {products.map(product => (
+                                    <ProductCard key={product.id} product={product} />
+                                ))}
+                            </div>
+                        )}
+
+                        {!loading && products.length === 0 && (
+                            <div className="text-center py-12">
+                                <div className="text-6xl mb-4">🔍</div>
+                                <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+                                <p className="text-gray-600">Try adjusting your search or filters</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Cart component
+        const Cart = () => {
+            const { cart, updateCartItem, removeFromCart, loading, showToast } = useContext(AppContext);
+            const [updating, setUpdating] = useState({});
+
+            const handleUpdateQuantity = async (itemId, newQuantity) => {
+                setUpdating({...updating, [itemId]: true});
+                try {
+                    await updateCartItem(itemId, newQuantity);
+                } catch (err) {
+                    showToast(err.message, 'error');
+                } finally {
+                    setUpdating({...updating, [itemId]: false});
+                }
+            };
+
+            const handleRemoveItem = async (itemId) => {
+                setUpdating({...updating, [itemId]: true});
+                try {
+                    await removeFromCart(itemId);
+                    showToast('Item removed from cart', 'success');
+                } catch (err) {
+                    showToast(err.message, 'error');
+                } finally {
+                    setUpdating({...updating, [itemId]: false});
+                }
+            };
+
+            const subtotal = cart.reduce((total, item) => total + (item.product.price * item.quantity), 0);
+            const tax = subtotal * 0.08; // 8% tax
+            const total = subtotal + tax;
+
+            if (loading) {
+                return (
+                    <div className="min-h-screen cart-bg flex items-center justify-center">
+                        <Loading size="lg" />
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen cart-bg">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+
+                        {cart.length === 0 ? (
+                            <div className="text-center py-12">
+                                <div className="text-6xl mb-4">🛒</div>
+                                <h3 className="text-xl font-semibold text-gray-900 mb-2">Your cart is empty</h3>
+                                <p className="text-gray-600 mb-4">Add some products to get started</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                {/* Cart Items */}
+                                <div className="lg:col-span-2">
+                                    <div className="glass-effect rounded-lg shadow-sm">
+                                        {cart.map((item) => (
+                                            <div key={item.id} className="p-6 border-b border-gray-200 last:border-b-0">
+                                                <div className="flex items-center space-x-4">
+                                                    <div className="text-4xl">{item.product.image}</div>
+                                                    <div className="flex-1">
+                                                        <h3 className="text-lg font-semibold text-gray-900">
+                                                            {item.product.name}
+                                                        </h3>
+                                                        <p className="text-sm text-gray-600 mt-1">
+                                                            {item.product.description}
+                                                        </p>
+                                                        <div className="flex items-center mt-2">
+                                                            <span className="text-lg font-bold text-gray-900">
+                                                                ${item.product.price}
+                                                            </span>
+                                                            <span className="text-sm text-gray-500 ml-2">
+                                                                each
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center space-x-2">
+                                                        <button
+                                                            onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                                                            disabled={updating[item.id] || item.quantity <= 1}
+                                                            className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center disabled:opacity-50"
+                                                        >
+                                                            -
+                                                        </button>
+                                                        <span className="w-8 text-center font-semibold">
+                                                            {item.quantity}
+                                                        </span>
+                                                        <button
+                                                            onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                                                            disabled={updating[item.id]}
+                                                            className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center disabled:opacity-50"
+                                                        >
+                                                            +
+                                                        </button>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="text-lg font-bold text-gray-900">
+                                                            ${(item.product.price * item.quantity).toFixed(2)}
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleRemoveItem(item.id)}
+                                                            disabled={updating[item.id]}
+                                                            className="text-red-600 hover:text-red-800 text-sm mt-1 disabled:opacity-50"
+                                                        >
+                                                            {updating[item.id] ? 'Removing...' : 'Remove'}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Order Summary */}
+                                <div className="lg:col-span-1">
+                                    <div className="glass-effect rounded-lg shadow-sm p-6 sticky top-24">
+                                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h3>
+                                        
+                                        <div className="space-y-2 mb-4">
+                                            <div className="flex justify-between">
+                                                <span>Subtotal</span>
+                                                <span>${subtotal.toFixed(2)}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span>Tax</span>
+                                                <span>${tax.toFixed(2)}</span>
+                                            </div>
+                                            <div className="border-t pt-2">
+                                                <div className="flex justify-between font-semibold text-lg">
+                                                    <span>Total</span>
+                                                    <span>${total.toFixed(2)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors">
+                                            Proceed to Checkout
+                                        </button>
+
+                                        <div className="mt-4 text-center">
+                                            <div className="text-sm text-gray-600">
+                                                🔒 Secure checkout with SSL encryption
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Main App component
+        const App = () => {
+            const [user, setUser] = useState(null);
+            const [products, setProducts] = useState([]);
+            const [cart, setCart] = useState([]);
+            const [loading, setLoading] = useState(false);
+            const [currentPage, setCurrentPage] = useState('products');
+            const [searchTerm, setSearchTerm] = useState('');
+            const [filters, setFilters] = useState({
+                category: 'all',
+                minPrice: '',
+                maxPrice: '',
+                rating: ''
+            });
+            const [toast, setToast] = useState(null);
+            const [darkMode, setDarkMode] = useState(() => {
+                const saved = localStorage.getItem('darkMode');
+                return saved ? JSON.parse(saved) : false;
+            });
+
+            const api = new APIService();
+
+            // Initialize app
+            useEffect(() => {
+                const token = localStorage.getItem('token');
+                const userData = localStorage.getItem('user');
+                
+                if (token && userData) {
+                    setUser(JSON.parse(userData));
+                    loadCart();
+                }
+                
+                loadProducts();
+            }, []);
+
+            // Load products when filters or search term changes
+            useEffect(() => {
+                loadProducts();
+            }, [filters, searchTerm]);
+
+            const loadProducts = async () => {
+                setLoading(true);
+                try {
+                    const searchFilters = {
+                        ...filters,
+                        search: searchTerm,
+                        minPrice: filters.minPrice ? parseFloat(filters.minPrice) : undefined,
+                        maxPrice: filters.maxPrice ? parseFloat(filters.maxPrice) : undefined,
+                        rating: filters.rating ? parseFloat(filters.rating) : undefined
+                    };
+                    const data = await api.getProducts(searchFilters);
+                    setProducts(data);
+                } catch (err) {
+                    showToast('Failed to load products', 'error');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const loadCart = async () => {
+                try {
+                    const cartData = await api.getCart();
+                    setCart(cartData);
+                } catch (err) {
+                    console.error('Failed to load cart:', err);
+                }
+            };
+
+            const login = async (credentials) => {
+                const { user: userData, token } = await api.login(credentials);
+                setUser(userData);
+                await loadCart();
+                showToast('Login successful!', 'success');
+            };
+
+            const signup = async (userData) => {
+                const { user: newUser, token } = await api.signup(userData);
+                setUser(newUser);
+                await loadCart();
+                showToast('Account created successfully!', 'success');
+            };
+
+            const logout = async () => {
+                await api.logout();
+                setUser(null);
+                setCart([]);
+                setCurrentPage('products');
+                showToast('Logged out successfully', 'success');
+            };
+
+            const addToCart = async (productId, quantity = 1) => {
+                const updatedCart = await api.addToCart(productId, quantity);
+                setCart(updatedCart);
+            };
+
+            const updateCartItem = async (itemId, quantity) => {
+                const updatedCart = await api.updateCartItem(itemId, quantity);
+                setCart(updatedCart);
+            };
+
+            const removeFromCart = async (itemId) => {
+                const updatedCart = await api.removeFromCart(itemId);
+                setCart(updatedCart);
+            };
+
+            const showToast = (message, type = 'success') => {
+                setToast({ message, type });
+            };
+
+            const hideToast = () => {
+                setToast(null);
+            };
+
+            const toggleTheme = () => {
+                const newDarkMode = !darkMode;
+                setDarkMode(newDarkMode);
+                localStorage.setItem('darkMode', JSON.stringify(newDarkMode));
+            };
+
+            // Apply dark mode class to document
+            useEffect(() => {
+                if (darkMode) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            }, [darkMode]);
+
+            const contextValue = {
+                user,
+                products,
+                cart,
+                loading,
+                currentPage,
+                setCurrentPage,
+                searchTerm,
+                setSearchTerm,
+                filters,
+                setFilters,
+                darkMode,
+                toggleTheme,
+                login,
+                signup,
+                logout,
+                addToCart,
+                updateCartItem,
+                removeFromCart,
+                showToast
+            };
+
+            useEffect(() => {
+                // Initialize Lucide icons
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+
+            return (
+                <AppContext.Provider value={contextValue}>
+                    <div className="min-h-screen main-bg">
+                        <Header />
+                        
+                        {currentPage === 'login' && <Login />}
+                        {currentPage === 'signup' && <Signup />}
+                        {currentPage === 'products' && <ProductsListing />}
+                        {currentPage === 'cart' && user && <Cart />}
+                        
+                        {toast && (
+                            <Toast
+                                message={toast.message}
+                                type={toast.type}
+                                onClose={hideToast}
+                            />
+                        )}
+                    </div>
+                </AppContext.Provider>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97afaffda194a7bb',t:'MTc1NzE3OTc1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
